@@ -12,6 +12,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import br.edu.agendapsi.ui.theme.AgendaPsiTheme
@@ -60,10 +61,9 @@ fun InicioScreen(
         ) {
             item {
                 Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                    Text("AgendaPsi", color = MaterialTheme.colorScheme.secondary,
-                        style = MaterialTheme.typography.labelLarge)
-                    Text("Início", style = MaterialTheme.typography.headlineSmall,
-                        modifier = Modifier.semantics { heading() })
+                    Text("AgendaPsi", color = MaterialTheme.colorScheme.primary,
+                        style = MaterialTheme.typography.headlineMedium,
+                        fontWeight = FontWeight.Bold)
                     Text(dia.format(formatoData).replaceFirstChar { it.titlecase() },
                         style = MaterialTheme.typography.bodyLarge)
                 }
