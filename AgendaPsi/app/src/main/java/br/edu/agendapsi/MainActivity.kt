@@ -11,6 +11,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        setContent { AgendaPsiTheme { AppNavHost() } }
+        val container = (application as AgendaPsiApplication).container
+        setContent { AgendaPsiTheme { AppNavHost(container.repository, container.clock) } }
     }
 }

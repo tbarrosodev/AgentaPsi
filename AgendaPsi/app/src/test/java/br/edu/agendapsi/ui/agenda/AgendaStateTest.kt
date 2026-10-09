@@ -1,6 +1,6 @@
 package br.edu.agendapsi.ui.agenda
 
-import br.edu.agendapsi.ui.inicio.StatusAgendamento
+import br.edu.agendapsi.data.model.StatusAgendamento
 import br.edu.agendapsi.ui.inicio.atendimentosDemo
 import java.time.LocalDate
 import org.junit.Assert.*

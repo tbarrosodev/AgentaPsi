@@ -12,7 +12,7 @@ import androidx.compose.ui.unit.dp
 import br.edu.agendapsi.ui.inicio.AtendimentoInicio
 import br.edu.agendapsi.ui.inicio.InicioIcons
 import br.edu.agendapsi.ui.inicio.Profissional
-import br.edu.agendapsi.ui.inicio.StatusAgendamento
+import br.edu.agendapsi.data.model.StatusAgendamento
 import java.time.format.DateTimeFormatter
 
 private val formatoHora = DateTimeFormatter.ofPattern("HH:mm")
