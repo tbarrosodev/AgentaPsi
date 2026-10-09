@@ -5,44 +5,47 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import br.edu.agendapsi.data.repository.ClinicaRepository
 import br.edu.agendapsi.ui.agenda.*
 import br.edu.agendapsi.ui.components.*
 import br.edu.agendapsi.ui.inicio.*
 import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.ZoneId
+import java.time.Clock
 import java.time.format.DateTimeFormatter
 import kotlinx.coroutines.delay
 
 @Composable
-fun AppNavHost() {
+fun AppNavHost(repository: ClinicaRepository, clock: Clock) {
     val nav = rememberNavController()
-    val fuso = remember { ZoneId.of("America/Sao_Paulo") }
-    var agora by remember { mutableStateOf(LocalDateTime.now(fuso)) }
-    var profissionalId by rememberSaveable { mutableStateOf<Long?>(null) }
-    var diaAgenda by rememberSaveable { mutableStateOf(agora.toLocalDate().toEpochDay()) }
+    val inicioVm: InicioViewModel = viewModel(factory = remember(repository, clock) { InicioViewModel.factory(repository, clock) })
+    val agendaVm: AgendaViewModel = viewModel(factory = remember(repository, clock) { AgendaViewModel.factory(repository, clock) })
+    val inicio by inicioVm.state.collectAsStateWithLifecycle()
+    val agenda by agendaVm.state.collectAsStateWithLifecycle()
+    val onProfissional: (Long?) -> Unit = {
+        inicioVm.selecionarProfissional(it)
+        agendaVm.selecionarProfissional(it)
+    }
     val lifecycle = LocalLifecycleOwner.current.lifecycle
-    LaunchedEffect(lifecycle) {
+    LaunchedEffect(lifecycle, inicioVm) {
         lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
             while (true) {
-                agora = LocalDateTime.now(fuso)
+                inicioVm.atualizarRelogio()
                 delay(60_000)
             }
         }
     }
-    // Mesma amostra para as duas telas; trocar a data não inventa novos registros.
-    val registros = remember(agora.toLocalDate()) { atendimentosDemo(agora.toLocalDate()) }
     fun abrirPrincipal(destino: Any) {
         nav.navigate(destino) {
             popUpTo(nav.graph.findStartDestination().id) { saveState = true }
@@ -57,30 +60,29 @@ fun AppNavHost() {
     NavHost(navController = nav, startDestination = Inicio) {
         composable<Inicio> {
             InicioScreen(
-                dia = agora.toLocalDate(), profissionais = profissionaisDemo,
-                profissionalSelecionado = profissionalId,
-                state = InicioState.Disponivel(resumirDia(registros, agora, profissionalId)),
-                onProfissional = { profissionalId = it }, onAgenda = onAgenda, onPacientes = onPacientes,
+                dia = inicio.dia, profissionais = inicio.profissionais,
+                profissionalSelecionado = inicio.profissionalId,
+                state = inicio.conteudo,
+                onProfissional = onProfissional, onAgenda = onAgenda, onPacientes = onPacientes,
                 onNovoAgendamento = {
-                    nav.navigate(AgendamentoForm(diaInicial = agora.toLocalDate().toEpochDay(), profissionalInicial = profissionalId))
+                    nav.navigate(AgendamentoForm(diaInicial = inicio.dia.toEpochDay(), profissionalInicial = inicio.profissionalId))
                 },
                 onAtendimento = { nav.navigate(AgendamentoDetalhe(it)) },
-                onTentarNovamente = { agora = LocalDateTime.now(fuso) },
-                onAgendaDoDia = { diaAgenda = agora.toLocalDate().toEpochDay(); onAgenda() }
+                onTentarNovamente = inicioVm::tentarNovamente,
+                onAgendaDoDia = { agendaVm.selecionarDia(LocalDate.now(clock)); onAgenda() }
             )
         }
         composable<Agenda> {
-            val dia = LocalDate.ofEpochDay(diaAgenda)
             AgendaScreen(
-                dia = dia, profissionais = profissionaisDemo, profissionalSelecionado = profissionalId,
-                state = AgendaState.Disponivel(atendimentosDoDia(registros, dia, profissionalId)),
-                onDia = { diaAgenda = it.toEpochDay() }, onProfissional = { profissionalId = it },
+                dia = agenda.dia, profissionais = agenda.profissionais, profissionalSelecionado = agenda.profissionalId,
+                state = agenda.conteudo,
+                onDia = agendaVm::selecionarDia, onProfissional = onProfissional,
                 onInicio = onInicio, onPacientes = onPacientes,
                 onNovoAgendamento = { data, profissional ->
                     nav.navigate(AgendamentoForm(diaInicial = data.toEpochDay(), profissionalInicial = profissional))
                 },
                 onAtendimento = { nav.navigate(AgendamentoDetalhe(it)) },
-                onTentarNovamente = { agora = LocalDateTime.now(fuso) }
+                onTentarNovamente = agendaVm::tentarNovamente
             )
         }
         // Substituir estes conteúdos pelas telas dos colegas, preservando as rotas.
@@ -93,7 +95,7 @@ fun AppNavHost() {
             val rota = entrada.toRoute<AgendamentoForm>()
             val data = rota.diaInicial?.let { LocalDate.ofEpochDay(it) }
                 ?.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) ?: "A selecionar"
-            val profissional = profissionaisDemo.find { it.id == rota.profissionalInicial }?.nome ?: "A selecionar"
+            val profissional = inicio.profissionais.find { it.id == rota.profissionalInicial }?.nome ?: "A selecionar"
             DestinoEmDesenvolvimento("Novo agendamento",
                 "O formulário será integrado pelo grupo.\n\nData: $data\nProfissional: $profissional",
                 onVoltar = { nav.popBackStack() })

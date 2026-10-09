@@ -82,6 +82,7 @@ fun AgendaScreen(
             item { FiltroProfissional(profissionais, profissionalSelecionado, onProfissional) }
             item {
                 Button(onClick = { onNovoAgendamento(dia, profissionalSelecionado) },
+                    enabled = state is AgendaState.Disponivel && profissionais.isNotEmpty(),
                     shape = MaterialTheme.shapes.small,
                     modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) {
                     Text("+  Novo agendamento")

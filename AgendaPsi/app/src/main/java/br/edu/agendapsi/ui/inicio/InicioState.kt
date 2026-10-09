@@ -1,17 +1,13 @@
 package br.edu.agendapsi.ui.inicio
 
+import br.edu.agendapsi.data.model.StatusAgendamento
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 
-enum class StatusAgendamento(val rotulo: String) {
-    AGENDADO("Agendado"), CONFIRMADO("Confirmado"), CONCLUIDO("Concluído"),
-    FALTOU("Faltou"), CANCELADO("Cancelado")
-}
-
 data class Profissional(val id: Long, val nome: String)
 
-// Modelo de apresentação. A futura consulta Room deve projetar os dados neste formato.
+// Modelo usado pelos componentes das telas Início e Agenda.
 data class AtendimentoInicio(
     val id: Long, val pacienteId: Long, val paciente: String,
     val profissionalId: Long, val profissional: String,
@@ -53,7 +49,7 @@ sealed interface InicioState {
 
 val profissionaisDemo = listOf(Profissional(1, "Ana Costa"), Profissional(2, "Bruno Lima"))
 
-// Dados fictícios somente para esta primeira entrega; não simulam persistência.
+// Amostra somente para previews e testes. O aplicativo consulta o Room.
 fun atendimentosDemo(dia: LocalDate): List<AtendimentoInicio> {
     val nomes = listOf("Marina Alves", "João Silva", "Clara Souza", "Pedro Santos", "Luiza Rocha", "Rafael Melo", "Beatriz Lima", "João Silva")
     val horas = listOf(8, 9, 10, 11, 13, 14, 16, 17)
