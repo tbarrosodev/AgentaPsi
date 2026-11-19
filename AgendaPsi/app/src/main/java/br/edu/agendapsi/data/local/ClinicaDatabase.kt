@@ -1,18 +1,21 @@
 package br.edu.agendapsi.data.local
 
+import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 
-@Database(entities = [PacienteEntity::class, ProfissionalEntity::class, AgendamentoEntity::class],
-    version = 2, exportSchema = true)
+@Database(entities = [PacienteEntity::class, ProfissionalEntity::class, AgendamentoEntity::class, AvisoEntity::class],
+    version = 3, exportSchema = true,
+    autoMigrations = [AutoMigration(from = 2, to = 3)])
 @TypeConverters(Converters::class)
 abstract class ClinicaDatabase : RoomDatabase() {
     abstract fun pacienteDao(): PacienteDao
     abstract fun profissionalDao(): ProfissionalDao
     abstract fun agendamentoDao(): AgendamentoDao
+    abstract fun avisoDao(): AvisoDao
 }
 
 internal val MIGRATION_1_2 = object : Migration(1, 2) {

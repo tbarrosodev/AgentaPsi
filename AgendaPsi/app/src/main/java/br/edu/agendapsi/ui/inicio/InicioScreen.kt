@@ -36,7 +36,9 @@ fun InicioScreen(
     tarefas: TarefasDemoState,
     onRecarregarTarefas: () -> Unit,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
-    onAgendaDoDia: () -> Unit = onAgenda
+    onAgendaDoDia: () -> Unit = onAgenda,
+    onAvisos: () -> Unit = {},
+    onFeriados: () -> Unit = {}
 ) {
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
@@ -122,6 +124,18 @@ fun InicioScreen(
                             modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) {
                             Text("Ver agenda do dia")
                         }
+                    }
+                }
+            }
+            item {
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    OutlinedButton(onClick = onAvisos, shape = MaterialTheme.shapes.small,
+                        modifier = Modifier.weight(1f).heightIn(min = 48.dp)) {
+                        Text("Avisos da clínica")
+                    }
+                    OutlinedButton(onClick = onFeriados, shape = MaterialTheme.shapes.small,
+                        modifier = Modifier.weight(1f).heightIn(min = 48.dp)) {
+                        Text("Feriados")
                     }
                 }
             }

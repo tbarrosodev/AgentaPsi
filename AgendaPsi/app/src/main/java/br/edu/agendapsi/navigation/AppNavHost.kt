@@ -20,7 +20,9 @@ import androidx.navigation.toRoute
 import br.edu.agendapsi.data.remote.TarefasApi
 import br.edu.agendapsi.data.repository.ClinicaRepository
 import br.edu.agendapsi.ui.agenda.*
+import br.edu.agendapsi.ui.avisos.AvisosScreen
 import br.edu.agendapsi.ui.components.*
+import br.edu.agendapsi.ui.feriados.FeriadosScreen
 import br.edu.agendapsi.ui.inicio.*
 import java.time.LocalDate
 import java.time.Clock
@@ -75,7 +77,9 @@ fun AppNavHost(repository: ClinicaRepository, clock: Clock, tarefasApi: TarefasA
                 },
                 onAtendimento = { nav.navigate(AgendamentoDetalhe(it)) },
                 onTentarNovamente = inicioVm::tentarNovamente,
-                onAgendaDoDia = { agendaVm.selecionarDia(LocalDate.now(clock)); onAgenda() }
+                onAgendaDoDia = { agendaVm.selecionarDia(LocalDate.now(clock)); onAgenda() },
+                onAvisos = { nav.navigate(Avisos) },
+                onFeriados = { nav.navigate(Feriados) }
             )
         }
         composable<Agenda> {
@@ -115,6 +119,12 @@ fun AppNavHost(repository: ClinicaRepository, clock: Clock, tarefasApi: TarefasA
         composable<PacienteForm> {
             DestinoEmDesenvolvimento("Cadastro de paciente", "O formulário será integrado pelo grupo.",
                 onVoltar = { nav.popBackStack() })
+        }
+        composable<Avisos> {
+            AvisosScreen(onVoltar = { nav.popBackStack() })
+        }
+        composable<Feriados> {
+            FeriadosScreen(onVoltar = { nav.popBackStack() })
         }
     }
 }

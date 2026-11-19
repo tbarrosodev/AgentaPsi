@@ -13,3 +13,6 @@ import kotlinx.serialization.Serializable
 )
 @Serializable data class AgendamentoDetalhe(val id: Long)
 @Serializable data class PacienteForm(val id: Long? = null)
+
+@Serializable data object Avisos
+@Serializable data object Feriados

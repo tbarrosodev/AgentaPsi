@@ -16,7 +16,7 @@ import retrofit2.converter.kotlinx.serialization.asConverterFactory
 
 class AppContainer(context: Context) {
     val clock: Clock = Clock.system(ZoneId.of("America/Sao_Paulo"))
-    private val db = Room.databaseBuilder(context.applicationContext, ClinicaDatabase::class.java, "agendapsi.db")
+    val db = Room.databaseBuilder(context.applicationContext, ClinicaDatabase::class.java, "agendapsi.db")
         .addMigrations(MIGRATION_1_2)
         .build()
     val repository: ClinicaRepository = RoomClinicaRepository(db, clock)
